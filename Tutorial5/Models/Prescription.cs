@@ -19,4 +19,6 @@ public class Prescription
     public int DoctorId { get; set; }
     [ForeignKey("DoctorId")]
     public virtual Doctor Doctor { get; set; }
+    
+    public ICollection<PrescriptionMedicament> PrescriptionMedicaments { get; set; } = new List<PrescriptionMedicament>();
 }

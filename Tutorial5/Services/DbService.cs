@@ -78,4 +78,49 @@ public class DbService : IDbService
 
         await _context.SaveChangesAsync();
     }
+    
+    public async Task<PatientInfoDTO> GetPatientInfoAsync(int patientId)
+    {
+        var patient = await _context.Patients
+            .Include(p => p.Prescriptions)
+            .ThenInclude(pr => pr.Doctor)
+            .Include(p => p.Prescriptions)
+            .ThenInclude(pr => pr.PrescriptionMedicaments)
+            .ThenInclude(pm => pm.Medicament)
+            .FirstOrDefaultAsync(p => p.PatientId == patientId);
+
+        if (patient == null) 
+            return null;
+
+        return new PatientInfoDTO()
+        {
+            PatientId = patient.PatientId,
+            FirstName = patient.FirstName,
+            LastName = patient.LastName,
+            BirthDate = patient.BirthDate,
+            Prescriptions = patient.Prescriptions
+                .OrderBy(p => p.DueDate)
+                .Select(p => new PrescriptionDTO
+                {
+                    PrescriptionId = p.PrescriptionId,
+                    Date = p.Date,
+                    DueDate = p.DueDate,
+                    Doctor = new DoctorDTO
+                    {
+                        DoctorId = p.Doctor.DoctorId,
+                        FirstName = p.Doctor.FirstName,
+                        LastName = p.Doctor.LastName,
+                        Email = p.Doctor.Email
+                    },
+                    Medicaments = p.PrescriptionMedicaments
+                        .Select(pm => new MedicamentDTO
+                        {
+                            MedicamentId = pm.MedicamentId,
+                            Name = pm.Medicament.Name,
+                            Description = pm.Details,
+                            Dose = pm.Dose
+                        }).ToList()
+                }).ToList()
+        };
+    }
 }

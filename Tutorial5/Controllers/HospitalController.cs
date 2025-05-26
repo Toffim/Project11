@@ -28,5 +28,16 @@ namespace Tutorial5.Controllers
                 return BadRequest(e.Message);
             }
         }
+        
+        [HttpGet("patient/{id}")]
+        public async Task<IActionResult> GetPatientInfo(int id)
+        {
+            var patientInfo = await _dbService.GetPatientInfoAsync(id);
+            if (patientInfo == null)
+            {
+                return NotFound($"Patient with id {id} not found.");
+            }
+            return Ok(patientInfo);
+        }
     }
 }
