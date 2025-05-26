@@ -15,7 +15,7 @@ namespace Tutorial5.Controllers
             _dbService = dbService;
         }
 
-        [HttpPost("create")]
+        [HttpPost("createPrescription")]
         public async Task<IActionResult> CreatePrescription([FromBody] PrescriptionRequestDTO request)
         {
             try
